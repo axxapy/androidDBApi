@@ -13,6 +13,7 @@ public class DBQuery {
 	private final int TYPE_UPDATE = 2;
 	private final int TYPE_DELETE = 3;
 	private final int TYPE_INSERT = 4;
+	private final int TYPE_REPLACE = 5;
 
 	private int type = TYPE_NONE;
 
@@ -43,7 +44,7 @@ public class DBQuery {
 		return this;
 	}
 
-	public DBQuery beginTransaction() {
+	/*public DBQuery beginTransaction() {
 		db.getWritableDatabase().beginTransaction();
 		return this;
 	}
@@ -57,7 +58,7 @@ public class DBQuery {
 	public DBQuery rollbackTransaction() {
 		db.getWritableDatabase().endTransaction();
 		return this;
-	}
+	}*/
 
 	public DBQuery Select(String what) {
 		type = TYPE_SELECT;
@@ -95,6 +96,12 @@ public class DBQuery {
 		return this;
 	}
 
+	public DBQuery Replace(ContentValues values) {
+		type = TYPE_REPLACE;
+		data = values;
+		return this;
+	}
+
 	public DBQuery Into(String table) {
 		this.table = table;
 		return this;
@@ -110,12 +117,23 @@ public class DBQuery {
 		return this;
 	}
 
-	public DBQuery Where(String where, String[] args) {
+	public DBQuery Where(String where, Object[] o_args) {
 		if (where_string == null) {
 			where_string = where;
 		} else {
 			where_string += " AND " + where;
 		}
+
+		String[] args;
+		if (o_args instanceof String[]) {
+			args = (String[])o_args;
+		} else {
+			args = new String[o_args.length];
+			for (int i = 0; i < o_args.length; i++) {
+				args[i] = String.valueOf(o_args[i]);
+			}
+		}
+
 		if (where_args.length < 1) {
 			where_args = args;
 		} else {
@@ -162,6 +180,7 @@ public class DBQuery {
 
 	public DBResult execute() {
 		try {
+			long insert_id;
 			switch (type) {
 				case TYPE_SELECT:
 					SQLiteDatabase conn = this.db.getReadableDatabase();
@@ -174,7 +193,10 @@ public class DBQuery {
 					this.db.getWritableDatabase().delete(table, where_string, where_args);
 					return new DBResult(DBResult.RESULT_OK);
 				case TYPE_INSERT:
-					long insert_id = this.db.getWritableDatabase().insert(table, null, data);
+					insert_id = this.db.getWritableDatabase().insert(table, null, data);
+					return new DBResult(DBResult.RESULT_OK, insert_id);
+				case TYPE_REPLACE:
+					insert_id = this.db.getWritableDatabase().replace(table, null, data);
 					return new DBResult(DBResult.RESULT_OK, insert_id);
 			}
 		} catch (SQLException ex) {
