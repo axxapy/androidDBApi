@@ -40,35 +40,49 @@ public class DBQuery {
 
 	public DBQuery Select(String[] what) {
 		type = TYPE_SELECT;
-		columns = what;
+		if (columns.length < 1) {
+			columns = what;
+		} else {
+			String[] __columns = new String[columns.length + what.length];
+			int i = 0;
+			for (String s : columns) {
+				__columns[i] = s;
+				i++;
+			}
+			for (String s : what) {
+				__columns[i] = s;
+				i++;
+			}
+			columns = __columns;
+		}
 		return this;
 	}
-
-	/*public DBQuery beginTransaction() {
-		db.getWritableDatabase().beginTransaction();
-		return this;
-	}
-
-	public DBQuery commitTransaction() {
-		db.getWritableDatabase().setTransactionSuccessful();
-		db.getWritableDatabase().endTransaction();
-		return this;
-	}
-
-	public DBQuery rollbackTransaction() {
-		db.getWritableDatabase().endTransaction();
-		return this;
-	}*/
 
 	public DBQuery Select(String what) {
+		String[] new_columns;
 		type = TYPE_SELECT;
 		if (what.contains(",")) {
-			columns = what.split(",");
-			for (int i = 0; i < columns.length; i++) {
-				columns[i] = columns[i].trim();
+			new_columns = what.split(",");
+			for (int i = 0; i < new_columns.length; i++) {
+				new_columns[i] = new_columns[i].trim();
 			}
 		} else {
-			columns = new String[] { what };
+			new_columns = new String[] { what };
+		}
+		if (columns.length < 1) {
+			columns = new_columns;
+		} else {
+			String[] __columns = new String[columns.length + new_columns.length];
+			int i = 0;
+			for (String s : columns) {
+				__columns[i] = s;
+				i++;
+			}
+			for (String s : new_columns) {
+				__columns[i] = s;
+				i++;
+			}
+			columns = __columns;
 		}
 		return this;
 	}
@@ -111,9 +125,27 @@ public class DBQuery {
 		data = values;
 		return this;
 	}
+	
+	public DBQuery From(String[] from) {
+		String __from = "";
+		boolean first = true;
+		for (String s : from) {
+			if (first) {
+				first = false;
+			} else {
+				__from += ", ";
+			}
+			__from += s;
+		}
+		return From(__from);
+	}
 
 	public DBQuery From(String from) {
-		table = from;
+		if (table == null || table.length() < 1) {
+			table = from;
+		} else {
+			table += ", "+from;
+		}
 		return this;
 	}
 
@@ -127,6 +159,8 @@ public class DBQuery {
 		String[] args;
 		if (o_args instanceof String[]) {
 			args = (String[])o_args;
+		} else if (o_args == null) {
+			args = null;
 		} else {
 			args = new String[o_args.length];
 			for (int i = 0; i < o_args.length; i++) {
@@ -151,7 +185,7 @@ public class DBQuery {
 	}
 
 	public DBQuery Where(String where, Object one_arg) {
-		this.Where(where, new String[] { String.valueOf(one_arg) });
+		this.Where(where, one_arg == null ? null : new String[] { String.valueOf(one_arg) });
 		return this;
 	}
 
