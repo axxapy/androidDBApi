@@ -27,6 +27,8 @@ public class DBQuery {
 	private String group_by = null;
 	private String order_by = null;
 	private String having = null;
+	private int limit = 0;
+	private int offset = 0;
 	private ContentValues data = null;
 
 	public DBQuery(SQLiteOpenHelper db) {
@@ -211,6 +213,16 @@ public class DBQuery {
 		this.having = having;
 		return this;
 	}
+	
+	public DBQuery Limit(int limit) {
+		this.limit = limit;
+		return this;
+	}
+	
+	public DBQuery Offset(int offset) {
+		this.offset = offset;
+		return this;
+	}
 
 	public DBResult execute() {
 		try {
@@ -218,7 +230,14 @@ public class DBQuery {
 			switch (type) {
 				case TYPE_SELECT:
 					SQLiteDatabase conn = this.db.getReadableDatabase();
-					Cursor c = conn.query(this.table, columns, where_string, where_args, group_by, having, order_by);
+					Cursor c = null;
+					if (limit != 0) {
+						String _limit = String.valueOf(limit);
+						if (offset > 0) _limit += " OFFSET "+String.valueOf(offset);
+						c = conn.query(table, columns, where_string, where_args, group_by, having, order_by, _limit);
+					} else {
+						c = conn.query(this.table, columns, where_string, where_args, group_by, having, order_by);
+					}
 					return new DBResult(c, this.buffered);
 				case TYPE_UPDATE:
 					this.db.getWritableDatabase().update(table, data, where_string, where_args);
