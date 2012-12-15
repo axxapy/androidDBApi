@@ -20,12 +20,12 @@ public class DBBase extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 	
-	public DBQuery BuildQuery() {
-		return new DBQuery(this);
+	public DBCreator getDBCreator() {
+		return new DBCreator(this);
 	}
 	
-	public DBQuery BuildUnbufferedQuery() {
-		return new DBQuery(this, false);
+	public DBQuery BuildQuery() {
+		return new DBQuery(this);
 	}
 	
 	public void beginTransaction() {

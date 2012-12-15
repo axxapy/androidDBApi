@@ -18,7 +18,6 @@ public class DBQuery {
 	private int type = TYPE_NONE;
 
 	private SQLiteOpenHelper db;
-	private boolean buffered = true;
 
 	private String[] columns = {};
 	private String table = null;
@@ -33,11 +32,6 @@ public class DBQuery {
 
 	public DBQuery(SQLiteOpenHelper db) {
 		this.db = db;
-	}
-
-	public DBQuery(SQLiteOpenHelper db, boolean buffered) {
-		this(db);
-		this.buffered = buffered;
 	}
 
 	public DBQuery Select(String[] what) {
@@ -238,7 +232,7 @@ public class DBQuery {
 					} else {
 						c = conn.query(this.table, columns, where_string, where_args, group_by, having, order_by);
 					}
-					return new DBResult(c, this.buffered);
+					return new DBResult(c);
 				case TYPE_UPDATE:
 					this.db.getWritableDatabase().update(table, data, where_string, where_args);
 					return new DBResult(DBResult.RESULT_OK);
