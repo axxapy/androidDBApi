@@ -20,10 +20,6 @@ public class DBBase extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 	
-	public DBCreator getDBCreator() {
-		return new DBCreator(this);
-	}
-	
 	public DBQuery BuildQuery() {
 		return new DBQuery(this);
 	}
