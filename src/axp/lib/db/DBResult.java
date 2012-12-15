@@ -1,4 +1,4 @@
-package com.axp.api;
+package axp.lib.db;
 
 import android.database.Cursor;
 import android.os.Bundle;
