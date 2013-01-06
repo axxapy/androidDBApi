@@ -32,7 +32,7 @@ public class DBBase extends SQLiteOpenHelper {
 		SQLiteDatabase db = getWritableDatabase();
 		db.setTransactionSuccessful();
 		db.endTransaction();
-		db.releaseReference();
+		//db.releaseReference();
 	}
 	
 	public void rollbackTransaction() {
