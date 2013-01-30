@@ -1,5 +1,7 @@
 package axp.lib.db;
 
+import java.util.HashMap;
+
 import android.database.Cursor;
 import android.os.Bundle;
 
@@ -12,6 +14,16 @@ public class DBResult {
 	private int result;
 	
 	private long insert_id;
+	
+	private HashMap<String, Integer> cached_indexes = new HashMap<String, Integer>();
+	
+	private int getColumnIndex(String name) {
+		if (cached_indexes.containsKey(name)) return cached_indexes.get(name);
+		int key = cursor.getColumnIndex(name);
+		if (key < 0) return -1;
+		cached_indexes.put(name, key);
+		return key;
+	}
 	
 	//@debug
 	public Cursor getCursor() {
@@ -69,24 +81,24 @@ public class DBResult {
 	}
 
 	public int getInt(String cname) {
-		return cursor.getInt(cursor.getColumnIndex(cname));
+		return cursor.getInt(getColumnIndex(cname));
 	}
 	
 	public long getLong(String cname) {
-		return cursor.getLong(cursor.getColumnIndex(cname));
+		return cursor.getLong(getColumnIndex(cname));
 	}
 	
 	public double getDouble(String cname) {
-		return cursor.getDouble(cursor.getColumnIndex(cname));
+		return cursor.getDouble(getColumnIndex(cname));
 	}
 	
 	public byte[] getBlob(String cname) {
-		return cursor.getBlob(cursor.getColumnIndex(cname));
+		return cursor.getBlob(getColumnIndex(cname));
 	}
 
 	public String getString(String cname) {
 		try {
-			return cursor.getString(cursor.getColumnIndex(cname));
+			return cursor.getString(getColumnIndex(cname));
 		} catch (Exception ex) {
 			return null;
 		}
